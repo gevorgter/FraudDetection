@@ -11,7 +11,7 @@ namespace FraudDetection
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            AccountManager.Init();
+            FraudDetection.CrankingEngine.AccountManager.Init();
         }
 
         public IConfiguration Configuration { get; }

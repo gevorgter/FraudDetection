@@ -57,7 +57,7 @@ namespace FraudDetection.Controllers
                         break;
                 }
             }
-            AccountManager.QueueTransaction(new Tuple<int,Transaction>(rq.midTidId, tr));
+            CrankingEngine.AccountManager.QueueTransaction(new Tuple<int,Transaction>(rq.midTidId, tr));
             return response;
         }
 

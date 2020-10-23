@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace FraudDetection
+namespace FraudDetection.CrankingEngine
 {
     public class Account
     {

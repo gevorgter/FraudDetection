@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 
-namespace FraudDetection
+namespace FraudDetection.CrankingEngine
 {
     public static class DefaultAccountSettings
     {

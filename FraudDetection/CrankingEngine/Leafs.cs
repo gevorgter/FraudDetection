@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FraudDetection
+namespace FraudDetection.CrankingEngine
 {
     public enum LEAFID { STORE = 1, MID = 2, AMOUNT = 3, SOURCEID = 4, TRANSACTIONTYPE = 5, CREDITCARD = 6, AVS = 7, SUCCESSFUL = 8 }
 
@@ -33,23 +33,5 @@ namespace FraudDetection
         public abstract bool Review(Transaction tr);
     }
 
-    public class Transaction
-    {
-        public DateTime transactionTime { get; set; }
-        public decimal amount { get; set; }
-        public int sourceId { get; set; }
-        public bool declined { get; set; }
-        public string ip { get; set; }
-    }
-
-    public class TransactionMidTid
-    {
-        public DateTime transactionTime { get; set; }
-        public decimal amount { get; set; }
-        public int sourceId { get; set; }
-        public bool declined { get; set; }
-        public string ip { get; set; }
-    }
-
-
+    
 }

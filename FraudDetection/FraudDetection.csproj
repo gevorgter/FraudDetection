@@ -8,5 +8,9 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="RuleEngine\" />
+  </ItemGroup>
+
 
 </Project>
