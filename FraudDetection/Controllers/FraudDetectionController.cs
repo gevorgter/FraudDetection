@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -27,8 +28,37 @@ namespace FraudDetection.Controllers
         [HttpPost("Report")]
         public string Report(ReportRequest rq)
         {
-            ThreadPool.QueueUserWorkItem(ThreadProc, rq);
-            return "OK";
+            string response = "OK";
+            Transaction tr = new Transaction()
+            {
+                transactionTime = DateTime.Now
+            };
+            var en = rq.parameters.EnumerateObject();
+            while(en.MoveNext())
+            {
+                string name = en.Current.Name.ToLower();
+                string value = en.Current.Value.ToString();
+                switch (name)
+                {
+                    case "amount":
+                        tr.amount = Decimal.Parse(value);
+                        break;
+                    case "sourceid":
+                        tr.sourceId = Int32.Parse(value);
+                        break;
+                    case "declined":
+                        tr.declined = Boolean.Parse(value);
+                        break;
+                    case "ip":
+                        tr.ip = value;
+                        break;
+                    default:
+                        response = $"property {name} is not valid";
+                        break;
+                }
+            }
+            AccountManager.QueueTransaction(new Tuple<int,Transaction>(rq.midTidId, tr));
+            return response;
         }
 
         // This thread procedure performs the task.
@@ -39,14 +69,9 @@ namespace FraudDetection.Controllers
         }
     }
 
-    public class Parameter
-    {
-        public string name { get; set; }
-        public string value { get; set; }
-    }
     public class ReportRequest
     {
         public int midTidId { get; set; }
-        public List<Parameter> parameters { get; set; }
+        public JsonElement parameters { get; set; }
     }
 }

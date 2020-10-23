@@ -16,7 +16,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "ancmHostingModel": "OutOfProcess"
+      "ancmHostingModel": "InProcess"
     },
     "FraudDetection": {
       "commandName": "Project",
