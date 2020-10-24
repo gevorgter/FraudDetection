@@ -66,13 +66,6 @@ namespace FraudDetection.Controllers
                 response = $"Blocked till {blockedTill.ToString("hh:mm:ss tt")}";
             return response;
         }
-
-        // This thread procedure performs the task.
-        static void ThreadProc(Object stateInfo)
-        {
-            _queue.Enqueue((ReportRequest)stateInfo);
-            Console.WriteLine("Queed");
-        }
     }
 
     public class ReportRequest
