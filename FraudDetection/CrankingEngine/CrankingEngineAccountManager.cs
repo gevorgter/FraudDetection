@@ -2,40 +2,34 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace FraudDetection.CrankingEngine
 {
-    public static class DefaultAccountSettings
-    {
-        public static int maintenanceTime = 10 * 60 * 1000;
-        public static TimeSpan retentionTime = TimeSpan.FromMinutes(10);
-        public static List<REVIEWFILTERTYPE> _commonFilters = new List<REVIEWFILTERTYPE>()
-        {
-            REVIEWFILTERTYPE.DECLINEFILTER,
-        };
-    }
+    
 
-    public static class AccountManager
+    public static class CrankingEngineAccountManager
     {
         static object _lockObject = new object();
         static Timer maintenanceTime = null;
-        static Dictionary<int, Account> _accounts = null;
+        static Dictionary<int, CrankingEngineAccount> _accounts = null;
         static List<GlobalTransactionFilter> _transactionFilter = null;
+
         public static void Init()
         {
-            _accounts = new Dictionary<int, Account>();
+            _accounts = new Dictionary<int, CrankingEngineAccount>();
             maintenanceTime = new Timer(Maintain);
-            maintenanceTime.Change(DefaultAccountSettings.maintenanceTime, DefaultAccountSettings.maintenanceTime); //perform maintenance every 10 minutes
+            maintenanceTime.Change(FraudDetectionDefaults.maintenanceTime, FraudDetectionDefaults.maintenanceTime); //perform maintenance every 10 minutes
             _transactionFilter = new List<GlobalTransactionFilter>()
             {
                 new SourceIdGlobalFilter(), //we will not even attempt to process transasction with that sourceId
             };
-            _transactionFilter.OrderByDescending(x => x.order);
+            _transactionFilter.OrderByDescending(x => x.priority);
         }
 
-        public static void QueueTransaction(Tuple<int, Transaction> t)
+        public static void QueueTransaction(int midTidId, Transaction t)
         {
-            ThreadPool.QueueUserWorkItem(ProcessQueuedTransaction, t);
+            ThreadPool.QueueUserWorkItem(ProcessQueuedTransaction, new Tuple<int, Transaction>(midTidId, t));
         }
 
         public static void ProcessQueuedTransaction(object state)
@@ -46,7 +40,7 @@ namespace FraudDetection.CrankingEngine
 
         public static void AddTransaction(int midTidId, Transaction t)
         {
-            Account acc;
+            CrankingEngineAccount acc;
             bool process = true;
             foreach(var f in _transactionFilter)
             {
@@ -68,19 +62,21 @@ namespace FraudDetection.CrankingEngine
         /// </summary>
         /// <param name="midTidId"></param>
         /// <returns></returns>
-        public static Account LoadAccount(int midTidId)
+        public static CrankingEngineAccount LoadAccount(int midTidId)
         {
-            var acc = new Account();
-            acc._retentionTime = DefaultAccountSettings.retentionTime;
+            var acc = new CrankingEngineAccount(midTidId);
+            acc._retentionTime = FraudDetectionDefaults.retentionTime;
+            acc.Init();
 
             //add common filters
-            foreach(REVIEWFILTERTYPE filterType in DefaultAccountSettings._commonFilters)
+            var en = FilterHelper.GetReviewFilters();
+            while(en.MoveNext())
             {
-                var filter = FilterHelper.GetFilter(filterType);
+                var filter = en.Current.Value();
                 acc.AddReviewFilter(filter);
                 filter.Init(acc);
             }
-
+            acc.Normalize();
             _accounts[midTidId] = acc;
             return acc;
         }

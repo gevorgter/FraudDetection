@@ -1,19 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace FraudDetection.CrankingEngine
 {
-    public class Account
+    public class CrankingEngineAccount
     {
         public int _midTidId { get; set; }
-        public TimeSpan _retentionTime { get; set; } = DefaultAccountSettings.retentionTime;
+        public TimeSpan _retentionTime { get; set; } = FraudDetectionDefaults.retentionTime;
         public List<Transaction> _transactions { get; set; } = new List<Transaction>(); //transactions for this account in order they come in.
 
         object lockObject = new object();
         
-        SortedList<int, ReviewFilter> reviewFilters;
-        SortedList<int, TransactionFilter> transactionFilters;
+        List<ReviewFilter> reviewFilters;
+        List<TransactionFilter> transactionFilters;
+
+        public CrankingEngineAccount(int midTidId)
+        {
+            _midTidId = midTidId;
+        }
+        public void Init()
+        {
+
+        }
 
         public void AddTransaction(Transaction t)
         {
@@ -24,7 +35,7 @@ namespace FraudDetection.CrankingEngine
                 {
                     foreach (var filter in transactionFilters)
                     {
-                        triggerReview &= filter.Value.Review(this, t);
+                        triggerReview &= filter.Review(this, t);
                         if (!triggerReview)
                             return;
                     }
@@ -33,7 +44,7 @@ namespace FraudDetection.CrankingEngine
                 if (reviewFilters != null)
                 {
                     _transactions.Add(t);
-                    TriggerReview();
+                    TriggerReview(t);
                 }
 
             }
@@ -42,26 +53,27 @@ namespace FraudDetection.CrankingEngine
         {
             lock (lockObject)
             {
-                if (reviewFilters == null)
-                    reviewFilters = new SortedList<int, ReviewFilter>();
-
-                reviewFilters.Add(filter.order, filter);
+                reviewFilters ??= new List<ReviewFilter>();
+                reviewFilters.Add(filter);
                 filter.Init(this);
             }
         }
 
-        void AddTransactionFilter(TransactionFilter filter)
+        public void AddTransactionFilter(TransactionFilter filter)
         {
             lock (lockObject)
             {
-                if (transactionFilters == null)
-                    transactionFilters = new SortedList<int, TransactionFilter>();
-
-                transactionFilters.Add(filter.order, filter);
+                transactionFilters ??= new List<TransactionFilter>();
+                transactionFilters.Add(filter);
                 filter.Init(this);
             }
         }
 
+        public void Normalize()
+        {
+            reviewFilters?.OrderByDescending(x => x.priority);
+            transactionFilters?.OrderByDescending(x => x.priority);
+        }
         /// <summary>
         /// Removes transactions that are older than retentionTime
         /// and returns amount of transactions left in a queue
@@ -87,11 +99,22 @@ namespace FraudDetection.CrankingEngine
         /// <summary>
         /// Reviews account
         /// </summary>
-        void TriggerReview()
+        void TriggerReview(Transaction tr)
         {
             foreach (var filter in reviewFilters)
-                filter.Value.Review(this, _transactions);
+                filter.Review(this, tr);
         }
 
+        public IEnumerable<Transaction> GetTransactions(TimeSpan reviewTime, FIELDID[] fieldsToMatch, Transaction trToMatch)
+        {
+            DateTime dtNow = DateTime.Now;
+            foreach (Transaction t in _transactions)
+            {
+                if (dtNow.Subtract(t.transactionTime) > reviewTime)
+                    continue; //do not need this transactions
+                if (TransactionHelper.CompareTransactions(fieldsToMatch, t, trToMatch))
+                    yield return t;
+            }
+        }
     }
 }

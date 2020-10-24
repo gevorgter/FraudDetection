@@ -7,6 +7,8 @@ namespace FraudDetection.CrankingEngine
 {
     public class SourceIdGlobalFilter : GlobalTransactionFilter
     {
+        public override string filterName { get => "SourceIdGlobalFilter"; }
+
         public override bool Review(Transaction tr)
         {
             if (tr.sourceId == 29)

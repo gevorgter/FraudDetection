@@ -38,26 +38,32 @@ namespace FraudDetection.Controllers
             {
                 string name = en.Current.Name.ToLower();
                 string value = en.Current.Value.ToString();
-                switch (name)
-                {
-                    case "amount":
-                        tr.amount = Decimal.Parse(value);
-                        break;
-                    case "sourceid":
-                        tr.sourceId = Int32.Parse(value);
-                        break;
-                    case "declined":
-                        tr.declined = Boolean.Parse(value);
-                        break;
-                    case "ip":
-                        tr.ip = value;
-                        break;
-                    default:
-                        response = $"property {name} is not valid";
-                        break;
-                }
+                if( !TransactionHelper.populateTransaction(name, value, tr))
+                    response = $"property {name} is not valid";
             }
-            CrankingEngine.AccountManager.QueueTransaction(new Tuple<int,Transaction>(rq.midTidId, tr));
+            CrankingEngine.CrankingEngineAccountManager.QueueTransaction(rq.midTidId, tr);
+            return response;
+        }
+
+        [HttpPost("Check")]
+        public string Check(ReportRequest rq)
+        {
+            string response = "OK";
+            Transaction tr = new Transaction()
+            {
+                transactionTime = DateTime.Now
+            };
+            var en = rq.parameters.EnumerateObject();
+            while (en.MoveNext())
+            {
+                string name = en.Current.Name.ToLower();
+                string value = en.Current.Value.ToString();
+                if (!TransactionHelper.populateTransaction(name, value, tr))
+                    response = $"property {name} is not valid";
+            }
+            DateTime blockedTill = RuleEngine.RuleEngineAccountManager.IsBlocked(rq.midTidId, tr);
+            if( blockedTill != DateTime.MinValue)
+                response = $"Blocked till {blockedTill.ToString("hh:mm:ss tt")}";
             return response;
         }
 
