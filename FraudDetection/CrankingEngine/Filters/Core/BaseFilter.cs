@@ -28,6 +28,7 @@ namespace FraudDetection.CrankingEngine
     public abstract class GlobalTransactionFilter : Filter
     {
         //return false if no need to continue through other filters
+        public virtual void Init() { }
         public abstract bool Review(Transaction tr);
     }
 

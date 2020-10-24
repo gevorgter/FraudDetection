@@ -6,25 +6,27 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace FraudDetection.CrankingEngine
 {
-    
+
 
     public static class CrankingEngineAccountManager
     {
         static object _lockObject = new object();
         static Timer maintenanceTime = null;
         static Dictionary<int, CrankingEngineAccount> _accounts = null;
-        static List<GlobalTransactionFilter> _transactionFilter = null;
+        static List<GlobalTransactionFilter> _transactionFilter = new List<GlobalTransactionFilter>();
 
         public static void Init()
         {
             _accounts = new Dictionary<int, CrankingEngineAccount>();
             maintenanceTime = new Timer(Maintain);
-            maintenanceTime.Change(FraudDetectionDefaults.maintenanceTime, FraudDetectionDefaults.maintenanceTime); //perform maintenance every 10 minutes
-            _transactionFilter = new List<GlobalTransactionFilter>()
-            {
-                new SourceIdGlobalFilter(), //we will not even attempt to process transasction with that sourceId
-            };
+            maintenanceTime.Change(FraudDetectionDefaults.maintenanceTime, FraudDetectionDefaults.maintenanceTime); 
+            
+            var en = FilterHelper.GetGlobalTransactionFilters();
+            while (en.MoveNext())
+                _transactionFilter.Add(en.Current.Value());
+
             _transactionFilter.OrderByDescending(x => x.priority);
+            _transactionFilter.ForEach(x => x.Init());
         }
 
         public static void QueueTransaction(int midTidId, Transaction t)
@@ -42,16 +44,16 @@ namespace FraudDetection.CrankingEngine
         {
             CrankingEngineAccount acc;
             bool process = true;
-            foreach(var f in _transactionFilter)
+            foreach (var f in _transactionFilter)
             {
                 process &= f.Review(t);
-                if (!process) 
+                if (!process)
                     return;
             }
             //lets process this transaction
             lock (_lockObject)
             {
-                if( !_accounts.TryGetValue(midTidId, out acc))
+                if (!_accounts.TryGetValue(midTidId, out acc))
                     acc = LoadAccount(midTidId);
             }
             acc.AddTransaction(t);
@@ -70,7 +72,7 @@ namespace FraudDetection.CrankingEngine
 
             //add common filters
             var en = FilterHelper.GetReviewFilters();
-            while(en.MoveNext())
+            while (en.MoveNext())
             {
                 var filter = en.Current.Value();
                 acc.AddReviewFilter(filter);
@@ -92,7 +94,7 @@ namespace FraudDetection.CrankingEngine
                 var it = _accounts.GetEnumerator();
                 //keep accounts we want to remove since we can not remove them form collection we iterate on
                 List<int> accountsToRemove = new List<int>();
-                while(it.MoveNext())
+                while (it.MoveNext())
                 {
                     if (it.Current.Value.Maintain(tickNow) == 0)
                         accountsToRemove.Add(it.Current.Key);

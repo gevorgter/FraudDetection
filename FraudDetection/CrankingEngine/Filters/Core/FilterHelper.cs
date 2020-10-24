@@ -18,7 +18,12 @@ namespace FraudDetection.CrankingEngine
         {
             return _mapReviewFilters.GetEnumerator();
         }
-        
+
+        public static Dictionary<string, Func<GlobalTransactionFilter>>.Enumerator GetGlobalTransactionFilters()
+        {
+            return _mapGlobalTransactioFilters.GetEnumerator();
+        }
+
         public static void ScanAssembly(Assembly assembly = null)
         {
             if (assembly == null)
