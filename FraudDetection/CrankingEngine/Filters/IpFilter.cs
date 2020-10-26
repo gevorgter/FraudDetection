@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace FraudDetection.CrankingEngine
 {
+    /*
     public class IpFilter : ReviewFilter
     {
         TimeSpan _reviewtime = TimeSpan.FromMinutes(10);
+        int _amountOfDeclines = 5;
         FIELDID[] _fieldsToMatch = new FIELDID[] { FIELDID.IP };
 
         public override string filterName { get => "IpFilter"; }
@@ -22,7 +24,7 @@ namespace FraudDetection.CrankingEngine
                 if (t.declined)
                     amountOfDeclines++;
             }
-            if (amountOfDeclines > 5)
+            if (amountOfDeclines > _amountOfDeclines)
             {
                 Rule rl = new Rule();
                 rl.AddParameter(FIELDID.IP, new ParameterValue(lastTransaction.ip));
@@ -30,4 +32,5 @@ namespace FraudDetection.CrankingEngine
             }
         }
     }
+    */
 }

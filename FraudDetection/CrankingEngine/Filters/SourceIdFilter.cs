@@ -9,6 +9,7 @@ namespace FraudDetection.CrankingEngine
     public class SourceIdFilter : ReviewFilter
     {
         TimeSpan _reviewtime = TimeSpan.FromMinutes(10);
+        int _amountOfDeclines = 3;
         FIELDID []_fieldsToMatch = new FIELDID[] { FIELDID.sourceId };
 
         public override string filterName { get => "SourceIdFilter"; }
@@ -22,7 +23,7 @@ namespace FraudDetection.CrankingEngine
                 if (t.declined)
                     amountOfDeclines++;
             }
-            if (amountOfDeclines > 5)
+            if (amountOfDeclines > _amountOfDeclines)
             {
                 Rule rl = new Rule();
                 rl.AddParameter(FIELDID.sourceId, new ParameterValue(lastTransaction.sourceId));
