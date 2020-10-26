@@ -73,4 +73,5 @@ namespace FraudDetection.Controllers
         public int midTidId { get; set; }
         public JsonElement parameters { get; set; }
     }
+
 }

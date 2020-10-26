@@ -39,6 +39,32 @@ namespace FraudDetection
                     return false;
             }
         }
+        public static Parameter GetValue(string name, string value)
+        {
+            var parm = new Parameter();
+            switch (name)
+            {
+                case "amount":
+                    parm._fieldId = FIELDID.amount;
+                    parm._value.v.d = Decimal.Parse(value);
+                    break;
+                case "sourceid":
+                    parm._fieldId = FIELDID.sourceId;
+                    parm._value.v.i = Int32.Parse(value);
+                    break;
+                case "declined":
+                    parm._fieldId = FIELDID.amount;
+                    parm._value.v.b = Boolean.Parse(value);
+                    break;
+                case "ip":
+                    parm._fieldId = FIELDID.IP;
+                    parm._value.s = value;
+                    break;
+                default:
+                    throw new Exception($"Unknown field {name}");
+            }
+            return parm;
+        }
 
         public static bool IsMatching(FIELDID fieldId, ParameterValue o, Transaction tr)
         {
@@ -53,7 +79,7 @@ namespace FraudDetection
                         return true;
                     return false;
                 case FIELDID.amount:
-                    if (tr.amount == o.v.d)
+                    if (tr.amount >= o.v.d)
                         return true;
                     return false;
                 case FIELDID.declined:
