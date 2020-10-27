@@ -38,8 +38,11 @@ namespace FraudDetection.Controllers
             {
                 string name = en.Current.Name.ToLower();
                 string value = en.Current.Value.ToString();
+                Program._ob.SetValue(tr, name, value);
+                /*
                 if( !TransactionHelper.populateTransaction(name, value, tr))
                     response = $"property {name} is not valid";
+                */
             }
             CrankingEngine.CrankingEngineAccountManager.QueueTransaction(rq.midTidId, tr);
             return response;
