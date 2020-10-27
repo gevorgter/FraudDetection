@@ -5,8 +5,12 @@ namespace FraudDetection
 {
     public class Program
     {
+        public static ObjectAnalyzer _ob;
         public static void Main(string[] args)
         {
+            _ob = new ObjectAnalyzer();
+            _ob.Analyze(typeof(Transaction));
+
             CreateHostBuilder(args).Build().Run();
         }
 
