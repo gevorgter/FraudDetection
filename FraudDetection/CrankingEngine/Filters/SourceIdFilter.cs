@@ -22,7 +22,7 @@ namespace FraudDetection.CrankingEngine
                 if (t.declined)
                     amountOfDeclines++;
             }
-            if (amountOfDeclines > 5)
+            if (amountOfDeclines > _amountOfDeclines)
             {
                 Rule rl = new Rule();
                 rl.AddParameter("sourceId", new ParameterValue(lastTransaction.sourceId));
