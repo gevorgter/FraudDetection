@@ -19,11 +19,7 @@ namespace FraudDetection.RuleEngine
 
         public bool IsMatching(Transaction t)
         {
-            bool isMatching = true;
-            foreach (var p in _parameters)
-                isMatching &= TransactionHelper.IsMatching(p._fieldId, p._value, t);
-
-            return isMatching;
+            return TransactionHelper.Compare(_parameters, t);
         }
 
         public void ActivateRule(DateTime dtNow)
@@ -33,7 +29,7 @@ namespace FraudDetection.RuleEngine
             triggeredAmount++;
         }
 
-        public void AddParameter(FIELDID fieldId, ParameterValue value)
+        public void AddParameter(string fieldId, ParameterValue value)
         {
             _parameters ??= new List<Parameter>();
             _parameters.Add(new Parameter()
@@ -64,7 +60,7 @@ namespace FraudDetection.RuleEngine
                 return false;
             for (int i = 0; i < r1._parameters.Count; i++)
             {
-                if (!Parameter.Compare(r1._parameters[i], r2._parameters[i]))
+                if (!TransactionHelper.Compare(r1._parameters[i], r2._parameters[i]))
                     return false;
             }
             return true;

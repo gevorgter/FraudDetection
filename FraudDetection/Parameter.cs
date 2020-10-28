@@ -8,15 +8,9 @@ namespace FraudDetection
 {
     public class Parameter
     {
-        public FIELDID _fieldId;
+        public string _fieldId;
         public ParameterValue _value;
 
-        public static bool Compare(Parameter p1, Parameter p2)
-        {
-            if (p1._fieldId != p2._fieldId)
-                return false;
-            return TransactionHelper.Compare(p1._fieldId, p1._value, p2._value);
-        }
     }
 
     [StructLayout(LayoutKind.Explicit)]

@@ -105,14 +105,14 @@ namespace FraudDetection.CrankingEngine
                 filter.Review(this, tr);
         }
 
-        public IEnumerable<Transaction> GetTransactions(TimeSpan reviewTime, FIELDID[] fieldsToMatch, Transaction trToMatch)
+        public IEnumerable<Transaction> GetTransactions(TimeSpan reviewTime, string []fieldsToMatch, Transaction trToMatch)
         {
             DateTime dtNow = DateTime.Now;
             foreach (Transaction t in _transactions)
             {
                 if (dtNow.Subtract(t.transactionTime) > reviewTime)
                     continue; //do not need this transactions
-                if (TransactionHelper.CompareTransactions(fieldsToMatch, t, trToMatch))
+                if (TransactionHelper.Compare(fieldsToMatch, t, trToMatch))
                     yield return t;
             }
         }

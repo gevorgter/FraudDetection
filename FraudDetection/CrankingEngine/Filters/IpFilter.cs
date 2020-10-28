@@ -9,7 +9,7 @@ namespace FraudDetection.CrankingEngine
     public class IpFilter : ReviewFilter
     {
         TimeSpan _reviewtime = TimeSpan.FromMinutes(10);
-        FIELDID[] _fieldsToMatch = new FIELDID[] { FIELDID.IP };
+        string[] _fieldsToMatch = new string[] { "ip" };
 
         public override string filterName { get => "IpFilter"; }
 
@@ -25,7 +25,7 @@ namespace FraudDetection.CrankingEngine
             if (amountOfDeclines > 5)
             {
                 Rule rl = new Rule();
-                rl.AddParameter(FIELDID.IP, new ParameterValue(lastTransaction.ip));
+                rl.AddParameter("ip", new ParameterValue(lastTransaction.ip));
                 RuleEngineAccountManager.AddRule(account._midTidId, rl);
             }
         }

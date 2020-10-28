@@ -38,7 +38,7 @@ namespace FraudDetection.Controllers
             {
                 string name = en.Current.Name.ToLower();
                 string value = en.Current.Value.ToString();
-                Program._ob.SetValue(tr, name, value);
+                TransactionHelper.SetValue(tr, name, value);
                 /*
                 if( !TransactionHelper.populateTransaction(name, value, tr))
                     response = $"property {name} is not valid";
@@ -61,8 +61,7 @@ namespace FraudDetection.Controllers
             {
                 string name = en.Current.Name.ToLower();
                 string value = en.Current.Value.ToString();
-                if (!TransactionHelper.populateTransaction(name, value, tr))
-                    response = $"property {name} is not valid";
+                TransactionHelper.SetValue(tr, name, value);
             }
             DateTime blockedTill = RuleEngine.RuleEngineAccountManager.IsBlocked(rq.midTidId, tr);
             if( blockedTill != DateTime.MinValue)

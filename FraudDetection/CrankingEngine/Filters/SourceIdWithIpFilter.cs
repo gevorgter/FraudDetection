@@ -9,8 +9,7 @@ namespace FraudDetection.CrankingEngine.Filters
     public class SourceIdWithIpFilter : ReviewFilter
     {
         TimeSpan _reviewtime = TimeSpan.FromMinutes(10);
-        FIELDID[] _fieldsToMatch = new FIELDID[] { FIELDID.sourceId, FIELDID.IP };
-
+        string[] _fieldsToMatch = new string[] { "sourceId", "ip" };
         public override string filterName { get => "SourceIdWithIpFilter"; }
 
         public override void Review(CrankingEngineAccount account, Transaction lastTransaction)
@@ -25,8 +24,8 @@ namespace FraudDetection.CrankingEngine.Filters
             if (amountOfDeclines > 5)
             {
                 Rule rl = new Rule();
-                rl.AddParameter(FIELDID.sourceId, new ParameterValue(lastTransaction.sourceId));
-                rl.AddParameter(FIELDID.IP, new ParameterValue(lastTransaction.ip));
+                rl.AddParameter("sourceId", new ParameterValue(lastTransaction.sourceId));
+                rl.AddParameter("ip", new ParameterValue(lastTransaction.ip));
                 RuleEngineAccountManager.AddRule(account._midTidId, rl);
             }
         }

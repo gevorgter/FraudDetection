@@ -16,7 +16,7 @@ namespace FraudDetection
         public bool declined { get; set; }
         public string ip { get; set; }
     }
-
+    /*
     public class TransactionHelper
     {
         public static bool populateTransaction(string name, string value, Transaction tr)
@@ -146,8 +146,7 @@ namespace FraudDetection
 
             return true;
         }
-
     }
+    */
 
-  
 }
