@@ -10,6 +10,7 @@ namespace FraudDetection.CrankingEngine
     public class IpFilter : ReviewFilter
     {
         TimeSpan _reviewtime = TimeSpan.FromMinutes(10);
+        int _amountOfDeclines = 5;
         string[] _fieldsToMatch = new string[] { "ip" };
 
         public override string filterName { get => "IpFilter"; }

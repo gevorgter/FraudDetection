@@ -9,6 +9,7 @@ namespace FraudDetection.CrankingEngine
     public class SourceIdFilter : ReviewFilter
     {
         TimeSpan _reviewtime = TimeSpan.FromMinutes(10);
+        int _amountOfDeclines = 5;
         string []_fieldsToMatch = new string[] { "sourceId" };
 
         public override string filterName { get => "SourceIdFilter"; }

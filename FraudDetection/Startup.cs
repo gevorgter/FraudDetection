@@ -24,6 +24,7 @@ namespace FraudDetection
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            /*
             services.AddHangfire(configuration => configuration
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
         .UseSimpleAssemblyNameTypeSerializer()
@@ -39,7 +40,7 @@ namespace FraudDetection
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
-
+            */
             services.AddControllers();
         }
 
@@ -56,14 +57,11 @@ namespace FraudDetection
             app.UseRouting();
 
             //app.UseAuthorization();
-            app.UseHangfireDashboard();
-            int accountId = 45;
-            //recurringJobs.AddOrUpdate("jobId", () => Test(accountId), Cron.Daily(12));
-            backgroundJobs.Enqueue(() => Test(accountId));
+            //app.UseHangfireDashboard();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHangfireDashboard();
+                //endpoints.MapHangfireDashboard();
             });
         }
 
